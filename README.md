@@ -16,7 +16,7 @@
   - [Install](#install)
   - [Initialization](#initialization)
 - [Methods](#methods)
-  - [myFunc](#myFunc)
+  - [replaceAllPatternRegExpsToPlaceholder](#replaceAllPatternRegExpsToPlaceholder)
 
 ## Quick start
 
@@ -34,7 +34,7 @@ npm i MYLIBNAME
 
 #### Include with &lt;script&gt;
 
-1. <a href="https://cdn.jsdelivr.net/npm/date-helper-js/dist/lib/MYLIBNAME.js" target="_blank">Download lib</a>
+1. <a href="https://cdn.jsdelivr.net/npm/MYLIBNAME/dist/lib/MYLIBNAME.js" target="_blank">Download lib</a>
 2. Add script to html
 
 ```html
@@ -107,7 +107,7 @@ requirejs(['MYLIBNAME'], function(GLOBALMYLIBNAME) {
 
 ## Methods
 
-### myFunc
+### replaceAllPatternRegExpsToPlaceholder
 
 Func description
 

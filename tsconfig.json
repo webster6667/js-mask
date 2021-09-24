@@ -17,11 +17,15 @@
     "sourceMap": true,
 
     "jsx": "react",
-    "allowJs": true, //Проходится по js файлам
+    "allowJs": true,
 
-    "strict": true, //Строгий режим
+    "strict": true,
     "module": "esnext",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "paths": {
+      "@common-types": ["src/types.ts"],
+      "@helpers/*": ["src/helpers/*"]
+    }
   },
   "ts-node" : {
     "compilerOptions" : {
@@ -29,11 +33,13 @@
       "module" : "commonjs"
     }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "tests/**/*.ts"
+  ],
   "exclude": [
     "node_modules/",
     "lib",
-    "es",
-    "**/*.test.*"
+    "es"
   ]
 }

@@ -1,27 +1,16 @@
-import { MyFunc } from './types';
+import { Mask, Unmask } from './types';
 /**
  * @description
- * Func description
+ * covering value to mask, relative settings
  *
- * @param {number} firstParam
- * @param {string[]} secondParam
- * @returns {boolean}
+ * @param {string} textForMask - text for mask
+ * @param {maskSettingsProps} maskSettings - setting for covering mask
+ *
+ * @returns {string}
  *
  * @example
- * myFunc(1,'example')
- * // => true
+ * function() // => true
  */
-declare const myFunc: MyFunc;
-/**
- * Group methods
- *
- * @example
- * export {myFunc}
- *
- * Single method
- *
- * @example
- * export default myFunc
- *
- */
-export default myFunc;
+declare const mask: Mask;
+declare const unmask: Unmask;
+export { mask, unmask };
