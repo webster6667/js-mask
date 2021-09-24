@@ -1,4 +1,6 @@
 import {camelToDash} from 'camel-to-dash'
+import ts from "rollup-plugin-ts";
+
 
 import babel from '@rollup/plugin-babel'
 import resolve from 'rollup-plugin-node-resolve'
@@ -21,24 +23,26 @@ const plugins = [
             browser: true,
             extensions
         }),
-        babel({
-            extensions,
-            babelHelpers: 'runtime',
-            presets: [
-                [
-                    '@babel/preset-env',
-                    {
-                        bugfixes: true,
-                        modules: false,
-                        targets: { browsers: '> 0.25%, ie 11, not op_mini all, not dead' }
-                    }
-                ],
-                '@babel/preset-typescript'
-            ],
-            plugins: [
-                '@babel/plugin-transform-runtime'
-            ],
-            exclude: 'node_modules/**',
+        ts({
+            hook: {
+                outputPath: (path) => path.replace(/\.esm\.d|\.cjs\.d/g, '.d')
+            },
+            transpiler: "babel",
+            browserslist: ["> 0.25%, ie 11, not op_mini all, not dead"],
+            babelConfig: {
+                presets: [
+                    [
+                        '@babel/preset-env',
+                        {
+                            bugfixes: true,
+                            modules: false,
+                            targets: { browsers: '> 0.25%, ie 11, not op_mini all, not dead' }
+                        }
+                    ],
+                    '@babel/preset-typescript'
+                ]
+            },
+            exclude: ["node_modules/**/*.*"]
         }),
         commonjs(),
         filesize(),

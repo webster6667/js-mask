@@ -16,7 +16,7 @@
   - [Install](#install)
   - [Initialization](#initialization)
 - [Methods](#methods)
-  - [replaceAllPatternRegExpsToPlaceholder](#replaceAllPatternRegExpsToPlaceholder)
+  - [mask](#mask)
 
 ## Quick start
 
@@ -107,26 +107,25 @@ requirejs(['MYLIBNAME'], function(GLOBALMYLIBNAME) {
 
 ## Methods
 
-### replaceAllPatternRegExpsToPlaceholder
+### mask
 
-Func description
+covering value to mask, relative settings
 
 
 #### Params
-- `firstParam`
-  - Type: `number`
-  
-- `secondParam`
-  - Type: `Array.&lt;string&gt;`
-  
+- `textForMask`
+  - Type: `string`
+  - Description: text for mask
+- `maskSettings`
+  - Type: `maskSettingsProps`
+  - Description: setting for covering mask
 
 #### Returns
-- `boolean`
+- `string`
 
 #### Example
 ```JS
-myFunc(1,'example')
-// => true
+function() // => true
 ```
 
 
