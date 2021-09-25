@@ -12,7 +12,7 @@
     "build": "run-s test build:prod build:docs",
     "build:docs": "jsdoc2md --template ./README.hbs --files ./src/*.ts --configure ./jsdoc2md.json > ./README.md",
     "build:prod": "cross-env NODE_ENV=prod rollup -c",
-    "build:dev": "run-s build:types && cross-env NODE_ENV=dev rollup -c --watch",
+    "build:dev": "cross-env NODE_ENV=dev rollup -c --watch",
     "dev:run": "ts-node src/index.ts"
   },
   "repository": {
