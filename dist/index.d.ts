@@ -9,6 +9,7 @@ type unmaskResultProps = {
 type maskSettingsProps = {
     maskPattern: string;
     placeholder?: string;
+    selectionStart?: number;
 };
 type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => string;
 type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => unmaskResultProps;
