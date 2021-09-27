@@ -23,7 +23,7 @@ const clearingFn = () => {
 
     // console.log(newText);
     
-    let text = '1256)-_4_-__-__',
+    let text = '125678789)-_4_-__-__',
         maskPattern = `[\\d][\\d][\\d])-[\\d][\\d][\\d]-[\\d][\\d]-[\\d][\\d]`
 
     const res = mask(text, {maskPattern, placeholder: '_'})

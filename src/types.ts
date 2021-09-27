@@ -10,7 +10,9 @@ type unmaskResultProps = {
 export type maskSettingsProps = {
     maskPattern: string,
     placeholder?: string,
-    selectionStart?: number
+    selectionStart?: number,
+    prevValue?: string,
+    handleEventInput?: boolean
 }
 
 export type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => string

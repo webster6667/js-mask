@@ -10,6 +10,8 @@ type maskSettingsProps = {
     maskPattern: string;
     placeholder?: string;
     selectionStart?: number;
+    prevValue?: string;
+    handleEventInput?: boolean;
 };
 type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => string;
 type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => unmaskResultProps;

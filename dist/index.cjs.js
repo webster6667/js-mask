@@ -40,6 +40,101 @@ var getMaskSymbolsArray = function getMaskSymbolsArray(maskPattern, regExpReplac
 };
 
 /**
+ * Clear redundant symbol _ after input symbols
+ */
+var clearRedundantPlaceholder = function clearRedundantPlaceholder(textForMaskSymbolsArray, maskSymbolsArray, placeholder, selectionStart) {
+  var different = textForMaskSymbolsArray.length - maskSymbolsArray.length;
+
+  for (var startIndex = 0; startIndex < different; startIndex++) {
+    var symbolIndexForRemove = selectionStart + startIndex,
+        symbolForRemove = textForMaskSymbolsArray[symbolIndexForRemove];
+
+    if (symbolForRemove === placeholder) {
+      textForMaskSymbolsArray.splice(symbolIndexForRemove, different);
+    }
+  }
+};
+
+/**
+ * Fix textInput When mask section is overflow
+ *
+ * (___)-___-__-__
+ * (12567)-_4_-__-__
+ *
+ */
+var fixMaskSectionOverflow = function fixMaskSectionOverflow(textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder) {
+  var maskSymbolsCount = maskSymbolsArray.length,
+      redundantMaskSectionsSymbolArray = [],
+      maskSymbolsArrayForOverflow = _toConsumableArray__default['default'](maskSymbolsArray);
+
+  var textSymbolIndex = 0;
+
+  for (var maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount;) {
+    var maskSymbol = maskSymbolsArray[maskSymbolIndex],
+        textSymbol = textForMaskSymbolsArray[textSymbolIndex],
+        isMaskSymbolPattern = maskSymbol !== regExpReplaceSymbol,
+        isMaskSymbolRegExp = maskSymbol === regExpReplaceSymbol;
+
+    if (isMaskSymbolPattern) {
+      var isTextSymbolPattern = textSymbol === maskSymbol;
+
+      if (isTextSymbolPattern) {
+        textSymbolIndex++;
+        maskSymbolIndex++;
+      } else {
+        redundantMaskSectionsSymbolArray.push(textSymbol);
+        textSymbolIndex++;
+      }
+    } else if (isMaskSymbolRegExp) {
+      var redundantMaskSectionsSymbolsExist = redundantMaskSectionsSymbolArray.length;
+
+      if (redundantMaskSectionsSymbolsExist) {
+        var textRedundantSymbol = redundantMaskSectionsSymbolArray.shift();
+        maskSymbolsArrayForOverflow[maskSymbolIndex] = textRedundantSymbol;
+        maskSymbolIndex++;
+
+        if (textSymbol === placeholder) {
+          textSymbolIndex++;
+        }
+      } else {
+        maskSymbolsArrayForOverflow[maskSymbolIndex] = textSymbol;
+        textSymbolIndex++;
+        maskSymbolIndex++;
+      }
+    }
+  }
+
+  return maskSymbolsArrayForOverflow;
+};
+
+/**
+ * Replace deleted symbols to placeholder or pattern
+ */
+
+var replaceDeletedSymbols = function replaceDeletedSymbols(textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder, selectionStart, prevValue) {
+  var prevSymbolAfterDeleted = maskSymbolsArray[selectionStart],
+      isPrevSymbolPattern = prevSymbolAfterDeleted !== regExpReplaceSymbol && prevSymbolAfterDeleted !== '',
+      symbolsLengthDifferent = maskSymbolsArray.length - textForMaskSymbolsArray.length;
+
+  if (symbolsLengthDifferent === 1 && !isPrevSymbolPattern) {
+    textForMaskSymbolsArray.splice(selectionStart, 0, placeholder);
+  } else {
+    var prevValueSymbolsArray = prevValue.split(''),
+        deletedSymbols = prevValueSymbolsArray.slice(selectionStart, selectionStart + symbolsLengthDifferent).join(''),
+        textForMaskSymbolsArrayForDetectedDuration = _toConsumableArray__default['default'](textForMaskSymbolsArray);
+
+    textForMaskSymbolsArrayForDetectedDuration.splice(selectionStart, 0, deletedSymbols);
+
+    var duration = textForMaskSymbolsArrayForDetectedDuration.join('') === prevValue ? 'ltr' : 'rtl',
+        maskSymbolsArrayForMaskPatternCreate = _toConsumableArray__default['default'](maskSymbolsArray),
+        maskPatternSymbolArray = replaceAllPatternRegExpsToPlaceholder(maskSymbolsArrayForMaskPatternCreate, placeholder, regExpReplaceSymbol),
+        symbolsArrayForReplaceDeleted = duration === 'ltr' ? maskPatternSymbolArray.slice(selectionStart, selectionStart + symbolsLengthDifferent).join('') : maskPatternSymbolArray.slice(selectionStart - symbolsLengthDifferent, selectionStart).join('');
+
+    textForMaskSymbolsArray.splice(selectionStart, 0, symbolsArrayForReplaceDeleted);
+  }
+};
+
+/**
  * @description
  * covering value to mask, relative settings
  *
@@ -60,39 +155,144 @@ var mask = function mask(textForMaskInput, maskSettings) {
       placeholder = _ref$placeholder === void 0 ? '' : _ref$placeholder,
       _ref$selectionStart = _ref.selectionStart,
       selectionStart = _ref$selectionStart === void 0 ? 0 : _ref$selectionStart,
-      regExpReplaceSymbol = '[',
+      _ref$prevValue = _ref.prevValue,
+      prevValue = _ref$prevValue === void 0 ? '' : _ref$prevValue;
+      _ref.handleEventInput;
+      var regExpReplaceSymbol = '[',
       hasPlaceholder = placeholder,
       _getMaskSymbolsArray = getMaskSymbolsArray(maskPattern, regExpReplaceSymbol),
       regExpsArray = _getMaskSymbolsArray.regExpsArray,
       maskSymbolsArray = _getMaskSymbolsArray.maskSymbolsArray,
       maskSymbolsCount = maskSymbolsArray.length;
 
-  var textForMask = textForMaskInput.split(''),
+  var textForMaskSymbolsArray = textForMaskInput.split(''),
       textSymbolIndex = 0,
       maskSymbolsArrayToOutPut = _toConsumableArray__default['default'](maskSymbolsArray),
-      lastMaskRegExpSymbolIndex = 0;
-  /**
-   * Проблема с лишним символом _ перед вводимым символом +
-   */
+      lastMaskRegExpSymbolIndex = 0,
+      textForMask = '';
 
+  if (placeholder) {
+    if (textForMaskSymbolsArray.length > maskSymbolsArray.length) {
+      /**
+       * Проблема с лишним символом _ перед вводимым символом
+       */
+      clearRedundantPlaceholder(textForMaskSymbolsArray, maskSymbolsArray, placeholder, selectionStart);
+      /**
+       * Проблема с переполнением секции маски
+       *
+       * ___)-___-__-__
+       * 12567)-_4_-__-__
+       */
 
-  if (textForMask.length > maskSymbolsArray.length) {
-    var different = textForMask.length - maskSymbolsArray.length;
-
-    for (var startIndex = 0; startIndex < different; startIndex++) {
-      var symbolIndexForRemove = selectionStart + startIndex,
-          symbolForRemove = textForMask[symbolIndexForRemove];
-
-      if (symbolForRemove === placeholder) {
-        textForMask.splice(symbolIndexForRemove, different);
-      }
+      textForMaskSymbolsArray = fixMaskSectionOverflow(textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder);
+      /**
+       * Смещение символов при стерании
+       */
+    } else if (textForMaskSymbolsArray.length > 1 && textForMaskSymbolsArray.length < maskSymbolsArray.length) {
+      replaceDeletedSymbols(textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder, selectionStart, prevValue); // const prevSymbolAfterDeleted = maskSymbolsArray[selectionStart],
+      //       isPrevSymbolPattern = prevSymbolAfterDeleted !== regExpReplaceSymbol && prevSymbolAfterDeleted !== '',
+      //       symbolsLengthDifferent = maskSymbolsArray.length - textForMaskSymbolsArray.length
+      //
+      // if (symbolsLengthDifferent === 1 && !isPrevSymbolPattern) {
+      //     textForMaskSymbolsArray.splice(selectionStart, 0, placeholder)
+      // } else {
+      //
+      //     /**
+      //      * Взять прев значение 195(123)-12
+      //      * Взять значение после того как его стерли 195()-12
+      //      * Взять позицию каретк и разницу между длины символо
+      //      * Вырезать кол-во символов в лево и вставить в значение после стирания, если после оно будет равно prevValue, то направление стирания влево
+      //      *
+      //      * После того как мы узнали нужное направление, берем нужное кол-во символов из маски, и вставляем к нам на позицию каретки
+      //      *
+      //      */
+      //     const prevValueSymbolsArray = prevValue.split(''),
+      //           deletedSymbols = prevValueSymbolsArray.slice(selectionStart, selectionStart + symbolsLengthDifferent).join(''),
+      //           textForMaskSymbolsArrayForDetectedDuration =  [...textForMaskSymbolsArray]
+      //
+      //           textForMaskSymbolsArrayForDetectedDuration.splice(selectionStart, 0, deletedSymbols)
+      //
+      //     const duration = textForMaskSymbolsArrayForDetectedDuration.join('') === prevValue ? 'ltr' : 'rtl',
+      //           maskSymbolsArrayForMaskPatternCreate = [...maskSymbolsArray],
+      //           maskPatternSymbolArray = replaceAllPatternRegExpsToPlaceholder(maskSymbolsArrayForMaskPatternCreate, placeholder, regExpReplaceSymbol),
+      //           symbolsArrayForReplaceDeleted = duration === 'ltr' ? maskPatternSymbolArray.slice(selectionStart, selectionStart + symbolsLengthDifferent).join('') : maskPatternSymbolArray.slice(selectionStart - symbolsLengthDifferent, selectionStart).join('')
+      //
+      //     textForMaskSymbolsArray.splice(selectionStart, 0, symbolsArrayForReplaceDeleted)
+      // }
     }
   }
-  /**
-   * Теперь проблема с переполнением
-   */
-  //Перебор символов маски +7(___)___-__-__
 
+  textForMask = textForMaskSymbolsArray.join(''); // if (textForMask.length > maskSymbolsArray.length) {
+  //     const different = textForMask.length - maskSymbolsArray.length
+  //
+  //     for (let startIndex = 0;startIndex < different; startIndex++) {
+  //
+  //         const symbolIndexForRemove = selectionStart + startIndex,
+  //               symbolForRemove = textForMask[symbolIndexForRemove]
+  //
+  //         if (symbolForRemove === placeholder) {
+  //             textForMask.splice(symbolIndexForRemove, different)
+  //         }
+  //
+  //     }
+  //
+  // }
+
+  /**
+   * Проблема с переполнением секции маски
+   *
+   * ___)-___-__-__
+   * 12567)-_4_-__-__
+   *
+   */
+  // const redundantMaskSectionsSymbolArray: string[] = [],
+  //       maskSymbolsArrayForOverflow: string[] = [...maskSymbolsArray]
+  //
+  //
+  //     for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; ) {
+  //
+  //         const maskSymbol = maskSymbolsArray[maskSymbolIndex],
+  //               textSymbol = textForMaskSymbolsArray[textSymbolIndex],
+  //               isMaskSymbolPattern = maskSymbol !== regExpReplaceSymbol,
+  //               isMaskSymbolRegExp = maskSymbol === regExpReplaceSymbol
+  //
+  //         if (isMaskSymbolPattern) {
+  //
+  //             const isTextSymbolPattern = textSymbol === maskSymbol
+  //
+  //             if (isTextSymbolPattern) {
+  //                 textSymbolIndex++
+  //                 maskSymbolIndex++
+  //             } else {
+  //                 redundantMaskSectionsSymbolArray.push(textSymbol)
+  //                 textSymbolIndex++
+  //             }
+  //
+  //         } else if (isMaskSymbolRegExp) {
+  //
+  //             const redundantMaskSectionsSymbolsExist = redundantMaskSectionsSymbolArray.length
+  //
+  //             if (redundantMaskSectionsSymbolsExist) {
+  //                 const textRedundantSymbol:string = redundantMaskSectionsSymbolArray.shift() as string
+  //
+  //                 maskSymbolsArrayForOverflow[maskSymbolIndex] = textRedundantSymbol
+  //                 maskSymbolIndex++
+  //
+  //                 if (textSymbol === placeholder) {
+  //                     textSymbolIndex++
+  //                 }
+  //
+  //             } else {
+  //                 maskSymbolsArrayForOverflow[maskSymbolIndex] = textSymbol
+  //                 textSymbolIndex++
+  //                 maskSymbolIndex++
+  //             }
+  //
+  //         }
+  //
+  // }
+  // return maskSymbolsArrayForOverflow.join('')
+  //Перебор символов маски +7(___)___-__-__
 
   for (var maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; maskSymbolIndex++) {
     //Символ текущего шага из маски +7(___)___-__-__
@@ -108,7 +308,7 @@ var mask = function mask(textForMaskInput, maskSettings) {
         //Проверка на то что все символы текста для маски перебрали
     wasAllTextSymbolsUsed = !textSymbol,
         //Индекс символа до которого нужно обрезать лишний текст
-    endSliceIndex = lastMaskRegExpSymbolIndex > 0 ? lastMaskRegExpSymbolIndex + 1 : 0;
+    endSliceIndex = lastMaskRegExpSymbolIndex > 0 ? lastMaskRegExpSymbolIndex + 1 : 0; // console.log(textSymbol, maskSymbol);
 
     if (textSymbol) {
       //Пропускаем если это символ из маски(+, 7, и тд)
