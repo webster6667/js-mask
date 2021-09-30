@@ -10,13 +10,15 @@ type unmaskResultProps = {
 export type maskSettingsProps = {
     maskPattern: string,
     placeholder?: string,
-    selectionStart?: number,
+    inputCaretPositionIndex?: number,
     prevValue?: string,
     handleEventInput?: boolean
 }
 
 export type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => string
 
-export type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => unmaskResultProps
+// export type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => unmaskResultProps
+
+export type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => string
 
 

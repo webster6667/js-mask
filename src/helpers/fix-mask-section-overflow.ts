@@ -19,9 +19,9 @@ export const fixMaskSectionOverflow:FixMaskSectionOverflow = (textForMaskSymbols
         for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; ) {
 
         const maskSymbol = maskSymbolsArray[maskSymbolIndex],
-            textSymbol = textForMaskSymbolsArray[textSymbolIndex],
-            isMaskSymbolPattern = maskSymbol !== regExpReplaceSymbol,
-            isMaskSymbolRegExp = maskSymbol === regExpReplaceSymbol
+              textSymbol = textForMaskSymbolsArray[textSymbolIndex],
+              isMaskSymbolPattern = maskSymbol !== regExpReplaceSymbol,
+              isMaskSymbolRegExp = maskSymbol === regExpReplaceSymbol
 
         if (isMaskSymbolPattern) {
 

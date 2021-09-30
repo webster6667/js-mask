@@ -8,8 +8,8 @@ import {ReplaceDeletedSymbols} from "./types"
 export const replaceDeletedSymbols:ReplaceDeletedSymbols = (textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder, selectionStart, prevValue) => {
 
     const prevSymbolAfterDeleted = maskSymbolsArray[selectionStart],
-        isPrevSymbolPattern = prevSymbolAfterDeleted !== regExpReplaceSymbol && prevSymbolAfterDeleted !== '',
-        symbolsLengthDifferent = maskSymbolsArray.length - textForMaskSymbolsArray.length
+          isPrevSymbolPattern = prevSymbolAfterDeleted !== regExpReplaceSymbol && prevSymbolAfterDeleted !== '',
+          symbolsLengthDifferent = maskSymbolsArray.length - textForMaskSymbolsArray.length
 
     if (symbolsLengthDifferent === 1 && !isPrevSymbolPattern) {
         textForMaskSymbolsArray.splice(selectionStart, 0, placeholder)

@@ -6,11 +6,11 @@ describe('unmask value with out placeholder', () => {
     test('empty value', () => {
 
         const maskPattern = '+9([\\d])-([0-9])-([A-Z])',
-              unmaskSettings = unmask('', {
+              value = unmask('+9(1)-(2)-(_)', {
                   maskPattern
               })
         
-        console.log(unmaskSettings);
+        console.log(value);
 
         // expect(unmaskSettings).toBe({
         //     patterBeforeRegExpSymbol: '+9(',

@@ -2,10 +2,51 @@ import {Mask, Unmask, maskSettingsProps} from './types'
 
 import {replaceAllPatternRegExpsToPlaceholder} from '@helpers/replace-all-pattern-reg-exp-to-placeholder'
 import {getMaskSymbolsArray} from '@helpers/get-mask-symbols-array'
-import {clearRedundantPlaceholder} from '@helpers/clear-redundant-placeholder'
-import {fixMaskSectionOverflow} from '@helpers/fix-mask-section-overflow'
-import {replaceDeletedSymbols} from '@helpers/replace-deleted-symbols'
 
+import {getFirstFilledRegExpIndexAfterCaret} from '@helpers/get-first-filled-reg-exp-index-after-caret'
+import {clearRedundantPlaceholderAfterInputText} from '@helpers/clear-redundant-placeholder-after-input-text'
+
+
+// import {clearRedundantPlaceholder} from '@helpers/clear-redundant-placeholder'
+// import {fixMaskSectionOverflow} from '@helpers/fix-mask-section-overflow'
+// import {replaceDeletedSymbols} from '@helpers/replace-deleted-symbols'
+
+
+const unmask:Unmask = (textForMask, maskSettings) => {
+    const {maskPattern = '', placeholder = '_'} = maskSettings || {},
+          regExpReplaceSymbol = '[',
+          {maskSymbolsArray} = getMaskSymbolsArray(maskPattern, regExpReplaceSymbol),
+          maskSymbolsCount = maskSymbolsArray.length,
+          clearValueSymbolsArray:string[] = []
+
+
+    for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; maskSymbolIndex++) {
+        const maskSymbol = maskSymbolsArray[maskSymbolIndex],
+              textSymbol = textForMask[maskSymbolIndex],
+              isMaskPatternSymbol = textSymbol === maskSymbol,
+              isMaskPatternRegExp = maskSymbol === regExpReplaceSymbol
+
+
+
+        if (textSymbol) {
+
+            //Пропускаем если это символ из маски(+, 7, и тд)
+            if (isMaskPatternSymbol) {
+                continue
+            }
+
+            if (isMaskPatternRegExp && textSymbol !== placeholder) {
+                clearValueSymbolsArray.push(textSymbol)
+            }
+
+        }
+
+    }
+
+    let clearValueText = clearValueSymbolsArray.join('')
+
+    return clearValueText
+}
 
 /**
  * @description
@@ -23,50 +64,203 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
     const {
             maskPattern = '',
             placeholder = '',
-            selectionStart = 0,
+            inputCaretPositionIndex = 0,
             prevValue = '',
             handleEventInput = false
           } = maskSettings || {},
-          regExpReplaceSymbol = '[',
           hasPlaceholder = placeholder,
+          regExpReplaceSymbol = hasPlaceholder ? placeholder : '[',
           {regExpsArray, maskSymbolsArray} = getMaskSymbolsArray(maskPattern, regExpReplaceSymbol),
+          maskPatternString = maskSymbolsArray.join(''),
           maskSymbolsCount = maskSymbolsArray.length
 
+
+
+
+
+    const prevValueLength = prevValue.length,
+          newValueLength = textForMaskInput.length,
+          isReplaceAction = prevValueLength === newValueLength,
+          isInputAction = newValueLength > prevValueLength,
+          isDeleteAction = newValueLength < prevValueLength,
+
+          // unmaskedPrevValue = unmask(prevValue, maskSettings),
+          // textForMaskSymbolsArrayTest = [...textForMaskSymbolsArray],  
+          prevValueMaskSymbolsArray = [...prevValue.split('')],
+          newValueMaskSymbolsArray = textForMaskInput.split(''),
+          textSymbolsArrayForMask = [...prevValueMaskSymbolsArray],
+          maskResultSymbolsArray = [...maskSymbolsArray]
+
+
+
+
+        if (isInputAction) {
+        
+            const lengthDifference = newValueLength - prevValueLength,
+                  wasInputSingleSymbol = lengthDifference === 1,
+                  wasInputManySymbols = lengthDifference > 1
+
+        
+            if (wasInputSingleSymbol) {
+                const inputCaretPositionBeforeChangeText = inputCaretPositionIndex-1,
+                      inputSymbol = newValueMaskSymbolsArray[inputCaretPositionBeforeChangeText]
+
+                textSymbolsArrayForMask.splice(inputCaretPositionBeforeChangeText, 1, inputSymbol)
+
+            } else if(wasInputManySymbols) {
+
+
+                /**
+                 * Если что, искать изьян тут(не четкие числа...)
+                 */
+
+                const inputCaretPositionBeforeChangeText = inputCaretPositionIndex - lengthDifference,
+                      firstRegExpSymbolIndexAfterCaret = getFirstFilledRegExpIndexAfterCaret(maskSymbolsArray, prevValueMaskSymbolsArray, regExpsArray, regExpReplaceSymbol, inputCaretPositionBeforeChangeText)
+
+                clearRedundantPlaceholderAfterInputText(textSymbolsArrayForMask, prevValueMaskSymbolsArray, newValueMaskSymbolsArray, inputCaretPositionBeforeChangeText, firstRegExpSymbolIndexAfterCaret, placeholder, lengthDifference)
+
+                // regExpsArrayForSearch = [...regExpsArray]
+
+                // /**
+                //  * Находим первый валидный regExp символ после каретки
+                //  */
+                // maskSymbolsArray.forEach((maskSymbol, maskSymbolIndex) => {
+                //     const textSymbol = prevValueMaskSymbolsArray[maskSymbolIndex],
+                //           isMaskPatternRegExp = maskSymbol === regExpReplaceSymbol
+                //
+                //     if (isMaskPatternRegExp) {
+                //         const maskRegExp = regExpsArrayForSearch.pop(),
+                //               regExp = maskRegExp ? new RegExp(maskRegExp) : null
+                //
+                //         if (regExp && regExp.test(textSymbol) && maskSymbolIndex > inputCaretPositionBeforeChangeText) {
+                //             firstRegExpSymbolIndexAfterCaret = maskSymbolIndex
+                //         }
+                //
+                //     }
+                //
+                // })
+
+
+
+
+                // const finishPreValueIndexForSearchPlaceholder = firstRegExpSymbolIndexAfterCaret > 0 ? firstRegExpSymbolIndexAfterCaret : prevValueMaskSymbolsArray.length
+                //
+                //
+                //
+                // /**
+                //  * Теперь нужно перебрать preValue символы, начиная с каретки, заканчивая firstRegExpSymbolIndexAfterCaret,
+                //  * И удалить lengthDifference плейсхолдер
+                //  */
+                //
+                // let deletedPlaceholderCount = 0
+                //
+                //
+                // for (let preValueIndex = inputCaretPositionBeforeChangeText; preValueIndex < finishPreValueIndexForSearchPlaceholder; preValueIndex++) {
+                //     const preValueSymbol = prevValueMaskSymbolsArray[preValueIndex]
+                //
+                //     if (preValueSymbol === placeholder && deletedPlaceholderCount < lengthDifference) {
+                //         deletedPlaceholderCount++
+                //         textSymbolsArrayForMask.splice((preValueIndex + 1) - deletedPlaceholderCount, 1)
+                //     }
+                //
+                // }
+                //
+                //
+                // textSymbolsArrayForMask.splice(inputCaretPositionBeforeChangeText, 0, inputSymbols.join(''))
+            }
+
+    }
+
+    // console.log('для перебора',textSymbolsArrayForMask.join(''));
+
+
+    let textSymbolIndexN = 0,
+        regExpsArrayForMask = [...regExpsArray]
+        // maskSymbolsArrayToOutPutNew = [...maskSymbolsArray]
+
+    console.log('Маск', maskResultSymbolsArray.join(''));
+    console.log('для перебора',textSymbolsArrayForMask.join(''));
+
+    for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; ) {
+        const maskSymbol = maskSymbolsArray[maskSymbolIndex],
+              textSymbol = textSymbolsArrayForMask[textSymbolIndexN],
+              isMaskSymbolPattern = maskSymbol !== regExpReplaceSymbol,
+              isMaskSymbolRegExp = maskSymbol === regExpReplaceSymbol
+
+        if (isMaskSymbolPattern) {
+            maskSymbolIndex++
+
+            if (textSymbol === maskSymbol) {
+                textSymbolIndexN++
+            }
+
+        } else if (isMaskSymbolRegExp) {
+
+            const maskRegExp = regExpsArrayForMask.pop(),
+                  regExp = maskRegExp ? new RegExp(maskRegExp) : null
+
+            if (regExp && regExp.test(textSymbol)) {
+                maskResultSymbolsArray[maskSymbolIndex] = textSymbol
+                maskSymbolIndex++
+                textSymbolIndexN++
+            } else if (textSymbol === placeholder) {
+                maskResultSymbolsArray[maskSymbolIndex] = placeholder
+                maskSymbolIndex++
+                textSymbolIndexN++
+            } else {
+                textSymbolIndexN++
+            }
+
+            if (textSymbolIndexN > newValueLength) {
+                break
+            }
+
+        }
+
+
+    }
+
+    console.log('смерджено',maskResultSymbolsArray.join(''));
+
+    // if (placeholder) {
+    //
+    //     if (textForMaskSymbolsArray.length > maskSymbolsArray.length) {
+    //
+    //         /**
+    //          * Проблема с лишним символом _ перед вводимым символом
+    //          */
+    //         clearRedundantPlaceholder(textForMaskSymbolsArray, maskSymbolsArray, placeholder, selectionStart)
+    //
+    //         /**
+    //          * Проблема с переполнением секции маски
+    //          *
+    //          * ___)-___-__-__
+    //          * 12567)-_4_-__-__
+    //          */
+    //
+    //         textForMaskSymbolsArray = fixMaskSectionOverflow(textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder)
+    //
+    //
+    //     /**
+    //      * Смещение символов при стерании
+    //      */
+    //     } else if(textForMaskSymbolsArray.length > 1 && textForMaskSymbolsArray.length < maskSymbolsArray.length) {
+    //
+    //         replaceDeletedSymbols(textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder, selectionStart, prevValue)
+    //     }
+    //
+    //
+    // }
+
+    /**
+     * old
+     */
     let textForMaskSymbolsArray = textForMaskInput.split(''),
         textSymbolIndex = 0,
         maskSymbolsArrayToOutPut = [...maskSymbolsArray],
         lastMaskRegExpSymbolIndex = 0,
         textForMask = ''
 
-    if (placeholder) {
-
-        if (textForMaskSymbolsArray.length > maskSymbolsArray.length) {
-
-            /**
-             * Проблема с лишним символом _ перед вводимым символом
-             */
-            clearRedundantPlaceholder(textForMaskSymbolsArray, maskSymbolsArray, placeholder, selectionStart)
-
-            /**
-             * Проблема с переполнением секции маски
-             *
-             * ___)-___-__-__
-             * 12567)-_4_-__-__
-             */
-
-            textForMaskSymbolsArray = fixMaskSectionOverflow(textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder)
-
-
-        /**
-         * Смещение символов при стерании
-         */
-        } else if(textForMaskSymbolsArray.length > 1 && textForMaskSymbolsArray.length < maskSymbolsArray.length) {
-
-            replaceDeletedSymbols(textForMaskSymbolsArray, maskSymbolsArray, regExpReplaceSymbol, placeholder, selectionStart, prevValue)
-        } 
-        
-        
-    }
 
     textForMask = textForMaskSymbolsArray.join('')
     
@@ -147,85 +341,85 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
 
 }
 
-const unmask:Unmask = (textForMask, maskSettings) => {
-    const {maskPattern = '', placeholder = '_'} = maskSettings || {},
-          regExpReplaceSymbol = '[',
-          {regExpsArray, maskSymbolsArray} = getMaskSymbolsArray(maskPattern, regExpReplaceSymbol),
-          maskSymbolsCount = maskSymbolsArray.length,
-          firstRegExpSymbolOnStart = maskSymbolsArray.indexOf(regExpReplaceSymbol),
-          patterBeforeRegExpSymbol = firstRegExpSymbolOnStart != -1 ? maskSymbolsArray.slice(0,firstRegExpSymbolOnStart).join('') : ''
-
-
-        let textSymbolIndex = 0,
-            maskSymbolsArrayToOutPut = [...maskSymbolsArray],
-            lastMaskRegExpSymbolIndex = 0,
-            clearValueSymbolsArray:string[] = [],
-            remainderMaskPatternSymbolsArray:string[] = []
-
-
-
-    for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; maskSymbolIndex++) {
-        const maskSymbol = maskSymbolsArray[maskSymbolIndex],
-              textSymbol = textForMask[textSymbolIndex],
-              isMaskPatternSymbol = textSymbol === maskSymbol,
-              isMaskPatternRegExp = maskSymbol === regExpReplaceSymbol,
-              wasAllTextSymbolsUsed = !textSymbol,
-              startSlideIndex = clearValueSymbolsArray.length === 0 ? 0 : maskSymbolIndex,
-              endSliceIndex = maskSymbolsArrayToOutPut.length
-
-
-
-        if (textSymbol) {
-
-            //Пропускаем если это символ из маски(+, 7, и тд)
-            if (isMaskPatternSymbol) {
-                textSymbolIndex++
-                continue
-            }
-
-            if (isMaskPatternRegExp) {
-                const maskRegExp = regExpsArray.pop(),
-                      regExp = maskRegExp ? new RegExp(maskRegExp) : null
-
-                if (regExp && regExp.test(textSymbol)) {
-                    maskSymbolsArrayToOutPut[maskSymbolIndex] = textSymbol
-                    clearValueSymbolsArray.push(textSymbol)
-                } else {
-                    maskSymbolsArrayToOutPut = replaceAllPatternRegExpsToPlaceholder(maskSymbolsArrayToOutPut, placeholder, regExpReplaceSymbol)
-                    remainderMaskPatternSymbolsArray = maskSymbolsArrayToOutPut.slice(startSlideIndex, endSliceIndex)
-                    break
-                }
-
-
-                textSymbolIndex++
-            }
-
-        } else if (wasAllTextSymbolsUsed) {
-
-            maskSymbolsArrayToOutPut = replaceAllPatternRegExpsToPlaceholder(maskSymbolsArrayToOutPut, placeholder, regExpReplaceSymbol)
-            remainderMaskPatternSymbolsArray = maskSymbolsArrayToOutPut.slice(startSlideIndex, endSliceIndex)
-            break
-
-        }
-
-
-        lastMaskRegExpSymbolIndex = isMaskPatternRegExp ? maskSymbolIndex : lastMaskRegExpSymbolIndex
-
-    }
-
-    let firstRegExpSymbolIndex = maskSymbolsArrayToOutPut.indexOf(placeholder),
-        isRegExpFinished = firstRegExpSymbolIndex === -1
-    
-    return {
-        clearValue: clearValueSymbolsArray.join(''),
-        remainderMaskPattern: remainderMaskPatternSymbolsArray.join(''),
-        patterBeforeRegExpSymbol,
-        isRegExpFinished,
-        firstRegExpSymbolIndex,
-        lastMaskRegExpSymbolIndex,
-    }
-
-}
+// const unmask:Unmask = (textForMask, maskSettings) => {
+//     const {maskPattern = '', placeholder = '_'} = maskSettings || {},
+//           regExpReplaceSymbol = '[',
+//           {regExpsArray, maskSymbolsArray} = getMaskSymbolsArray(maskPattern, regExpReplaceSymbol),
+//           maskSymbolsCount = maskSymbolsArray.length,
+//           firstRegExpSymbolOnStart = maskSymbolsArray.indexOf(regExpReplaceSymbol),
+//           patterBeforeRegExpSymbol = firstRegExpSymbolOnStart != -1 ? maskSymbolsArray.slice(0,firstRegExpSymbolOnStart).join('') : ''
+//
+//
+//         let textSymbolIndex = 0,
+//             maskSymbolsArrayToOutPut = [...maskSymbolsArray],
+//             lastMaskRegExpSymbolIndex = 0,
+//             clearValueSymbolsArray:string[] = [],
+//             remainderMaskPatternSymbolsArray:string[] = []
+//
+//
+//
+//     for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; maskSymbolIndex++) {
+//         const maskSymbol = maskSymbolsArray[maskSymbolIndex],
+//               textSymbol = textForMask[textSymbolIndex],
+//               isMaskPatternSymbol = textSymbol === maskSymbol,
+//               isMaskPatternRegExp = maskSymbol === regExpReplaceSymbol,
+//               wasAllTextSymbolsUsed = !textSymbol,
+//               startSlideIndex = clearValueSymbolsArray.length === 0 ? 0 : maskSymbolIndex,
+//               endSliceIndex = maskSymbolsArrayToOutPut.length
+//
+//
+//
+//         if (textSymbol) {
+//
+//             //Пропускаем если это символ из маски(+, 7, и тд)
+//             if (isMaskPatternSymbol) {
+//                 textSymbolIndex++
+//                 continue
+//             }
+//
+//             if (isMaskPatternRegExp) {
+//                 const maskRegExp = regExpsArray.pop(),
+//                       regExp = maskRegExp ? new RegExp(maskRegExp) : null
+//
+//                 if (regExp && regExp.test(textSymbol)) {
+//                     maskSymbolsArrayToOutPut[maskSymbolIndex] = textSymbol
+//                     clearValueSymbolsArray.push(textSymbol)
+//                 } else {
+//                     maskSymbolsArrayToOutPut = replaceAllPatternRegExpsToPlaceholder(maskSymbolsArrayToOutPut, placeholder, regExpReplaceSymbol)
+//                     remainderMaskPatternSymbolsArray = maskSymbolsArrayToOutPut.slice(startSlideIndex, endSliceIndex)
+//                     break
+//                 }
+//
+//
+//                 textSymbolIndex++
+//             }
+//
+//         } else if (wasAllTextSymbolsUsed) {
+//
+//             maskSymbolsArrayToOutPut = replaceAllPatternRegExpsToPlaceholder(maskSymbolsArrayToOutPut, placeholder, regExpReplaceSymbol)
+//             remainderMaskPatternSymbolsArray = maskSymbolsArrayToOutPut.slice(startSlideIndex, endSliceIndex)
+//             break
+//
+//         }
+//
+//
+//         lastMaskRegExpSymbolIndex = isMaskPatternRegExp ? maskSymbolIndex : lastMaskRegExpSymbolIndex
+//
+//     }
+//
+//     let firstRegExpSymbolIndex = maskSymbolsArrayToOutPut.indexOf(placeholder),
+//         isRegExpFinished = firstRegExpSymbolIndex === -1
+//
+//     return {
+//         clearValue: clearValueSymbolsArray.join(''),
+//         remainderMaskPattern: remainderMaskPatternSymbolsArray.join(''),
+//         patterBeforeRegExpSymbol,
+//         isRegExpFinished,
+//         firstRegExpSymbolIndex,
+//         lastMaskRegExpSymbolIndex,
+//     }
+//
+// }
 
 
 export {mask, unmask}

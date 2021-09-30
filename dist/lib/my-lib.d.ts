@@ -1,20 +1,14 @@
-type unmaskResultProps = {
-    patterBeforeRegExpSymbol: string;
-    isRegExpFinished: boolean;
-    firstRegExpSymbolIndex: number;
-    lastMaskRegExpSymbolIndex: number;
-    clearValue: string;
-    remainderMaskPattern: string;
-};
 type maskSettingsProps = {
     maskPattern: string;
     placeholder?: string;
-    selectionStart?: number;
+    inputCaretPositionIndex?: number;
     prevValue?: string;
     handleEventInput?: boolean;
 };
 type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => string;
-type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => unmaskResultProps;
+// export type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => unmaskResultProps
+type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => string;
+declare const unmask: Unmask;
 /**
  * @description
  * covering value to mask, relative settings
@@ -28,5 +22,4 @@ type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => unmaskR
  * function() // => true
  */
 declare const mask: Mask;
-declare const unmask: Unmask;
 export { mask, unmask };
