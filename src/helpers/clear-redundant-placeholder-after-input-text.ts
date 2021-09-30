@@ -22,6 +22,8 @@ export const clearRedundantPlaceholderAfterInputText:ClearRedundantPlaceholderAf
 
     }
 
-    textSymbolsArrayForMask.splice(inputCaretPositionBeforeChangeText, 0, inputSymbols.join(''))
+    inputSymbols.forEach((inputSymbol, index) => {
+        textSymbolsArrayForMask.splice(inputCaretPositionBeforeChangeText + index, 0, inputSymbol)
+    })
 
 }

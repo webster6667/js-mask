@@ -23,12 +23,23 @@ const clearingFn = () => {
 
     // console.log(newText);
     
-    let text = '125678789)-_4_-__-__',
-        maskPattern = `[\\d][\\d][\\d])-[\\d][\\d][\\d]-[\\d][\\d]-[\\d][\\d]`
+    // const ar = ['1', '2', '3'],
+    //       inputSymbols:any[] = ['4', '5', '6']
+    //
+    // ar.splice(1, 0, inputSymbols)
+    //
+    // console.log(ar);
 
-    const res = mask(text, {maskPattern, placeholder: '_'})
-    
-    console.log(res);
+
+    let text = '+7(1275__)-___-__-__',
+        maskPattern = `+7([\\d][\\d][\\d])-[\\d][\\d][\\d]-[\\d][\\d]-[\\d][\\d]`
+
+    mask(text, {
+        maskPattern,
+        placeholder: '_',
+        inputCaretPositionIndex: 7,
+        prevValue: '+7(1__)-___-__-__'
+    })
 
 }
 

@@ -17,7 +17,7 @@ export const getFirstFilledRegExpIndexAfterCaret:GetFirstFilledRegExpIndexAfterC
             const maskRegExp = regExpsArray.pop(),
                 regExp = maskRegExp ? new RegExp(maskRegExp) : null
 
-            if (regExp && regExp.test(textSymbol) && maskSymbolIndex > inputCaretPositionBeforeChangeText) {
+            if (regExp && regExp.test(textSymbol) && maskSymbolIndex >= inputCaretPositionBeforeChangeText) {
                 firstRegExpSymbolIndexAfterCaret = maskSymbolIndex
             }
 
