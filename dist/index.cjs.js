@@ -48,7 +48,7 @@ var getFirstFilledRegExpIndexAfterCaret = function getFirstFilledRegExpIndexAfte
       var maskRegExp = regExpsArray.pop(),
           regExp = maskRegExp ? new RegExp(maskRegExp) : null;
 
-      if (regExp && regExp.test(textSymbol) && maskSymbolIndex >= inputCaretPositionBeforeChangeText) {
+      if (regExp && regExp.test(textSymbol) && maskSymbolIndex >= inputCaretPositionBeforeChangeText && firstRegExpSymbolIndexAfterCaret === 0) {
         firstRegExpSymbolIndexAfterCaret = maskSymbolIndex;
       }
     }
@@ -144,19 +144,22 @@ var mask = function mask(textForMaskInput, maskSettings) {
       regExpRemoveSymbol = ']',
       _getMaskSymbolsArray2 = getMaskSymbolsArray(maskPattern, regExpReplaceSymbol),
       regExpsArray = _getMaskSymbolsArray2.regExpsArray,
-      maskSymbolsArray = _getMaskSymbolsArray2.maskSymbolsArray,
-      maskSymbolsCount = maskSymbolsArray.length;
+      maskSymbolsArray = _getMaskSymbolsArray2.maskSymbolsArray;
+      _toConsumableArray__default['default'](maskSymbolsArray).join('');
+      var maskSymbolsCount = maskSymbolsArray.length;
 
   var prevValueLength = prevValue.length,
       newValueLength = textForMaskInput.length,
       isInputAction = newValueLength > prevValueLength,
       isDeleteAction = newValueLength < prevValueLength,
+      isReplaceAction = prevValueLength === newValueLength,
       // unmaskedPrevValue = unmask(prevValue, maskSettings),
   // textForMaskSymbolsArrayTest = [...textForMaskSymbolsArray],  
   prevValueMaskSymbolsArray = _toConsumableArray__default['default'](prevValue.split('')),
       newValueMaskSymbolsArray = textForMaskInput.split(''),
-      textSymbolsArrayForMask = _toConsumableArray__default['default'](prevValueMaskSymbolsArray),
       maskResultSymbolsArray = _toConsumableArray__default['default'](maskSymbolsArray);
+
+  var textSymbolsArrayForMask = _toConsumableArray__default['default'](prevValueMaskSymbolsArray);
 
   if (isInputAction) {
     var lengthDifference = newValueLength - prevValueLength,
@@ -203,10 +206,14 @@ var mask = function mask(textForMaskInput, maskSettings) {
       }
     });
     return prevValueMaskSymbolsArrayWithDeleteRegExp.join('');
+  } else if (isReplaceAction) {
+    textSymbolsArrayForMask = newValueMaskSymbolsArray;
   }
 
   var textSymbolIndex = 0,
       regExpsArrayForMask = _toConsumableArray__default['default'](regExpsArray);
+
+  console.log(textSymbolsArrayForMask.join(''));
 
   for (var maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount;) {
     var maskSymbol = maskSymbolsArray[maskSymbolIndex],
@@ -221,10 +228,11 @@ var mask = function mask(textForMaskInput, maskSettings) {
         textSymbolIndex++;
       }
     } else if (isMaskSymbolRegExp) {
-      var maskRegExp = regExpsArrayForMask.pop(),
+      var maskRegExp = regExpsArrayForMask[0],
           regExp = maskRegExp ? new RegExp(maskRegExp) : null;
 
       if (regExp && regExp.test(textSymbol)) {
+        regExpsArrayForMask.pop();
         maskResultSymbolsArray[maskSymbolIndex] = textSymbol;
         maskSymbolIndex++;
         textSymbolIndex++;
@@ -233,6 +241,7 @@ var mask = function mask(textForMaskInput, maskSettings) {
         maskSymbolIndex++;
         textSymbolIndex++;
       } else {
+        console.log(textSymbol);
         textSymbolIndex++;
       }
 
@@ -244,7 +253,7 @@ var mask = function mask(textForMaskInput, maskSettings) {
 
   var maskedResultString = replaceAllPatternRegExpsToPlaceholder(maskResultSymbolsArray, placeholder, regExpReplaceSymbol).join('');
   return maskedResultString;
-}; // const unmask:Unmask = (textForMask, maskSettings) => {
+};
 
 exports.mask = mask;
 exports.unmask = unmask;
