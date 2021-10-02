@@ -18,8 +18,8 @@ export type maskSettingsProps = {
 type maskResult = {
     maskedValue: string,
     unmaskedValue: string,
-    unmaskedPrevValue: string,
-    newCaretPosition: number
+    unmaskedPrevValue?: string,
+    newCaretPosition?: number
 }
 
 export type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => maskResult

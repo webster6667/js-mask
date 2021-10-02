@@ -8,8 +8,8 @@ type maskSettingsProps = {
 type maskResult = {
     maskedValue: string;
     unmaskedValue: string;
-    unmaskedPrevValue: string;
-    newCaretPosition: number;
+    unmaskedPrevValue?: string;
+    newCaretPosition?: number;
 };
 type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => maskResult;
 type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => string;
@@ -18,7 +18,7 @@ declare const unmask: Unmask;
  * @description
  * covering value to mask, relative settings
  *
- * @param {string} textForMask - text for mask
+ * @param {string} textForMaskInput - text for mask
  * @param {maskSettingsProps} maskSettings - setting for covering mask
  *
  * @returns {string}
