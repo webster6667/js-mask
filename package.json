@@ -1,5 +1,5 @@
 {
-  "name": "js-mask",
+  "name": "js-text-mask",
   "version": "0.0.1",
   "description": "js mask on clear js, for dom elements or clear string",
   "main": "dist/index.cjs.js",
@@ -17,13 +17,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/webster6667/js-mask.git"
+    "url": "git+https://github.com/webster6667/js-text-mask.git"
   },
   "keywords": ["mask"],
   "author": "webster6667",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/webster6667/js-mask/issues"
+    "url": "https://github.com/webster6667/js-text-mask/issues"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.3",
@@ -58,5 +58,5 @@
     "count-value-in-array": "^1.0.0",
     "rollup-plugin-ts": "^1.4.6"
   },
-  "homepage": "https://github.com/webster6667/js-mask#readme"
+  "homepage": "https://github.com/webster6667/js-text-mask#readme"
 }

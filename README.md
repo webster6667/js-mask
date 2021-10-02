@@ -2,12 +2,12 @@
     <img src="./illustration.svg" alt="illustration" width="100"/>
 </p>
 
-# js-mask
+# js-text-mask
 
 > mask on clear js, which you can use on frontend and backend, on string or dom element
 
-[![npm version](https://badge.fury.io/js/js-mask.svg)](https://www.npmjs.com/package/js-mask)
-[![](https://data.jsdelivr.com/v1/package/npm/js-mask/badge)](https://www.jsdelivr.com/package/npm/js-mask)
+[![npm version](https://badge.fury.io/js/js-text-mask.svg)](https://www.npmjs.com/package/js-text-mask)
+[![](https://data.jsdelivr.com/v1/package/npm/js-text-mask/badge)](https://www.jsdelivr.com/package/npm/js-text-mask)
 
 
 ## Table of Contents
@@ -30,16 +30,16 @@ We support all platforms.
 For module bundlers such as Webpack or Browserify.
 
 ```shell
-npm i js-mask
+npm i js-text-mask
 ```
 
 #### Include with &lt;script&gt;
 
-1. <a href="https://cdn.jsdelivr.net/npm/js-mask/dist/lib/js-mask.js" target="_blank">Download lib</a>
+1. <a href="https://cdn.jsdelivr.net/npm/js-text-mask/dist/lib/js-text-mask.js" target="_blank">Download lib</a>
 2. Add script to html
 
 ```html
-<script src="js-mask.js"></script>
+<script src="js-text-mask.js"></script>
 ```
 
 ##### CDN
@@ -47,13 +47,13 @@ npm i js-mask
 Recommended for learning purposes, you can use the latest version:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/js-mask/dist/lib/js-mask.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-text-mask/dist/lib/js-text-mask.js"></script>
 ```
 
 Recommended for production for avoiding unexpected breakage from newer versions:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/js-mask@0.0.0/dist/lib/js-mask.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-text-mask@0.0.0/dist/lib/js-text-mask.js"></script>
 ```
 
 ### Demo
