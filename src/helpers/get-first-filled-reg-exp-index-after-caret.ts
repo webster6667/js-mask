@@ -1,7 +1,7 @@
 import {GetFirstFilledRegExpIndexAfterCaret} from "./types"
 
 /**
- * Найти индекс первого заполненного символа маски, после каретки
+ * return first regExp symbol index after caret, or 0
  */
 export const getFirstFilledRegExpIndexAfterCaret:GetFirstFilledRegExpIndexAfterCaret = (maskSymbolsArray, prevValueMaskSymbolsArray, commonRegExpsArray, regExpReplaceSymbol, inputCaretPositionBeforeChangeText) => {
 

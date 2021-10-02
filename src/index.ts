@@ -6,11 +6,7 @@ import {getMaskSymbolsArray} from '@helpers/get-mask-symbols-array'
 import {getFirstFilledRegExpIndexAfterCaret} from '@helpers/get-first-filled-reg-exp-index-after-caret'
 import {clearRedundantPlaceholderAfterInputText} from '@helpers/clear-redundant-placeholder-after-input-text'
 
-
-// import {clearRedundantPlaceholder} from '@helpers/clear-redundant-placeholder'
-// import {fixMaskSectionOverflow} from '@helpers/fix-mask-section-overflow'
-// import {replaceDeletedSymbols} from '@helpers/replace-deleted-symbols'
-
+import {getNewCaretPosition} from '@helpers/get-new-caret-position'
 
 const unmask:Unmask = (textForMask, maskSettings) => {
     const {maskPattern = '', placeholder = '_'} = maskSettings || {},
@@ -52,7 +48,7 @@ const unmask:Unmask = (textForMask, maskSettings) => {
  * @description
  * covering value to mask, relative settings
  *
- * @param {string} textForMask - text for mask
+ * @param {string} textForMaskInput - text for mask
  * @param {maskSettingsProps} maskSettings - setting for covering mask
  *
  * @returns {string}
@@ -66,15 +62,13 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
             placeholder = '',
             inputCaretPositionIndex = 0,
             prevValue = '',
-            handleEventInput = false
           } = maskSettings || {},
           hasPlaceholder = placeholder,
           regExpReplaceSymbol = '[',
           regExpRemoveSymbol = ']',
           {regExpsArray, maskSymbolsArray} = getMaskSymbolsArray(maskPattern, regExpReplaceSymbol),
-          maskPatternString = [...maskSymbolsArray].join(''),
+          maskPatternString = replaceAllPatternRegExpsToPlaceholder([...maskSymbolsArray], placeholder, regExpReplaceSymbol).join(''),
           maskSymbolsCount = maskSymbolsArray.length
-
 
 
     const prevValueLength = prevValue.length,
@@ -84,8 +78,7 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
           isReplaceAction = prevValueLength === newValueLength,
 
 
-          // unmaskedPrevValue = unmask(prevValue, maskSettings),
-          // textForMaskSymbolsArrayTest = [...textForMaskSymbolsArray],  
+          unmaskedPrevValue = unmask(prevValue, maskSettings),
           prevValueMaskSymbolsArray = [...prevValue.split('')],
           newValueMaskSymbolsArray = textForMaskInput.split(''),
           maskResultSymbolsArray = [...maskSymbolsArray]
@@ -106,20 +99,15 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
                       quantitySymbolForDeleteAfterCaret = firstRegExpSymbolIndexAfterCaret === inputCaretPositionBeforeChangeText ? 0 : 1
 
                 textSymbolsArrayForMask.splice(inputCaretPositionBeforeChangeText, quantitySymbolForDeleteAfterCaret, inputSymbol)
-                
+
             } else if(wasInputManySymbols) {
 
-
-                /**
-                 * Если что, искать изьян тут(не четкие числа...)
-                 */
                 const inputCaretPositionBeforeChangeText = inputCaretPositionIndex - lengthDifference,
                       firstRegExpSymbolIndexAfterCaret = getFirstFilledRegExpIndexAfterCaret(maskSymbolsArray, prevValueMaskSymbolsArray, regExpsArray, regExpReplaceSymbol, inputCaretPositionBeforeChangeText)
 
                 clearRedundantPlaceholderAfterInputText(textSymbolsArrayForMask, prevValueMaskSymbolsArray, newValueMaskSymbolsArray, inputCaretPositionBeforeChangeText, firstRegExpSymbolIndexAfterCaret, placeholder, lengthDifference)
             }
 
-            
     } else if(isDeleteAction) {
 
         const lengthDifference = prevValueLength - newValueLength,
@@ -146,64 +134,79 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
             } 
 
         })
-        
-        
-        return prevValueMaskSymbolsArrayWithDeleteRegExp.join('')
-    } else if(isReplaceAction) {
 
+
+        textSymbolsArrayForMask = prevValueMaskSymbolsArrayWithDeleteRegExp
+    } else if(isReplaceAction) {
         textSymbolsArrayForMask = newValueMaskSymbolsArray
     } 
 
-    let textSymbolIndex = 0,
-        regExpsArrayForMask = [...regExpsArray]
+    if (!isDeleteAction) {
 
+        let textSymbolIndex = 0,
+            regExpsArrayForMask = [...regExpsArray],
+            patternSymbols:string[] = []
 
-    console.log(textSymbolsArrayForMask.join(''));
-    
-    for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; ) {
-        const maskSymbol = maskSymbolsArray[maskSymbolIndex],
-              textSymbol = textSymbolsArrayForMask[textSymbolIndex],
-              isMaskSymbolPattern = maskSymbol !== regExpReplaceSymbol,
-              isMaskSymbolRegExp = maskSymbol === regExpReplaceSymbol
+        for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; ) {
+            const maskSymbol = maskSymbolsArray[maskSymbolIndex],
+                textSymbol = textSymbolsArrayForMask[textSymbolIndex],
+                isMaskSymbolPattern = maskSymbol !== regExpReplaceSymbol,
+                isMaskSymbolRegExp = maskSymbol === regExpReplaceSymbol
 
-        if (isMaskSymbolPattern) {
-            maskSymbolIndex++
-
-            if (textSymbol === maskSymbol) {
-                textSymbolIndex++
-            }
-
-        } else if (isMaskSymbolRegExp) {
-
-            const maskRegExp = regExpsArrayForMask[0],
-                  regExp = maskRegExp ? new RegExp(maskRegExp) : null
-            
-            if (regExp && regExp.test(textSymbol)) {
-                regExpsArrayForMask.pop()
-                maskResultSymbolsArray[maskSymbolIndex] = textSymbol
+            if (isMaskSymbolPattern) {
                 maskSymbolIndex++
-                textSymbolIndex++
-            } else if (textSymbol === placeholder) {
-                maskResultSymbolsArray[maskSymbolIndex] = placeholder
-                maskSymbolIndex++
-                textSymbolIndex++
-            } else {
-                console.log(textSymbol);
-                textSymbolIndex++
+                patternSymbols.push(maskSymbol)
+
+                if (textSymbol === maskSymbol) {
+                    textSymbolIndex++
+                }
+
+            } else if (isMaskSymbolRegExp) {
+
+                const maskRegExp = regExpsArrayForMask[0],
+                    regExp = maskRegExp ? new RegExp(maskRegExp) : null
+
+                if (regExp && regExp.test(textSymbol)) {
+                    regExpsArrayForMask.pop()
+                    maskResultSymbolsArray[maskSymbolIndex] = textSymbol
+                    maskSymbolIndex++
+                    textSymbolIndex++
+                } else if (textSymbol === placeholder) {
+                    maskResultSymbolsArray[maskSymbolIndex] = placeholder
+                    maskSymbolIndex++
+                    textSymbolIndex++
+                } else if(prevValueMaskSymbolsArray[textSymbolIndex] === placeholder) {
+                    maskResultSymbolsArray[maskSymbolIndex] = placeholder
+                    maskSymbolIndex++
+                    textSymbolIndex++
+                } else if(isReplaceAction && !patternSymbols.includes(textSymbol)) {
+                    maskResultSymbolsArray[maskSymbolIndex] = prevValueMaskSymbolsArray[textSymbolIndex]
+                    maskSymbolIndex++
+                    textSymbolIndex++
+                } else {
+                    maskResultSymbolsArray[maskSymbolIndex] = placeholder
+                    textSymbolIndex++
+                }
+
+                if (textSymbolIndex > newValueLength) {
+                    break
+                }
+
             }
 
-            if (textSymbolIndex > newValueLength) {
-                break
-            }
 
         }
 
+        textSymbolsArrayForMask = replaceAllPatternRegExpsToPlaceholder(maskResultSymbolsArray, placeholder, regExpReplaceSymbol)
 
     }
 
-    const maskedResultString = replaceAllPatternRegExpsToPlaceholder(maskResultSymbolsArray, placeholder, regExpReplaceSymbol).join('')
-    
-    return maskedResultString
+    const maskedValue = textSymbolsArrayForMask.join(''),
+          unmaskedValue = unmask(maskedValue, maskSettings),
+          newCaretPosition:number = getNewCaretPosition(isDeleteAction, maskSymbolsArray, textSymbolsArrayForMask, regExpReplaceSymbol, inputCaretPositionIndex, placeholder, maskedValue, maskPatternString, newValueLength)
+
+
+    return {maskedValue, unmaskedValue, unmaskedPrevValue, newCaretPosition}
 }
 
 

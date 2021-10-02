@@ -5,8 +5,13 @@ type maskSettingsProps = {
     prevValue?: string;
     handleEventInput?: boolean;
 };
-type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => string;
-// export type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => unmaskResultProps
+type maskResult = {
+    maskedValue: string;
+    unmaskedValue: string;
+    unmaskedPrevValue: string;
+    newCaretPosition: number;
+};
+type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => maskResult;
 type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => string;
 declare const unmask: Unmask;
 /**
