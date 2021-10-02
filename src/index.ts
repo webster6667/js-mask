@@ -212,39 +212,40 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
     } else {
 
         let textSymbolIndex = 0,
-            maskSymbolsArrayToOutPut = [...maskSymbolsArray],
-            lastMaskRegExpSymbolIndex = 0
+            maskSymbolsArrayToOutPut = [...maskSymbolsArray]
 
-        for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; maskSymbolIndex++) {
+        for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount;) {
             const maskSymbol = maskSymbolsArray[maskSymbolIndex],
                   textSymbol = textForMaskInput[textSymbolIndex],
                   remainderMaskRegExpCount = regExpsArray.length,
-                  isMaskPatternSymbol = textSymbol === maskSymbol,
+                  isMaskPatternSymbol = maskSymbol !== regExpReplaceSymbol,
                   isMaskPatternRegExp = maskSymbol === regExpReplaceSymbol,
-                  wasAllTextSymbolsUsed = !textSymbol,
-                  endSliceIndex = lastMaskRegExpSymbolIndex > 0 ? lastMaskRegExpSymbolIndex + 1 : 0
+                  wasAllTextSymbolsUsed = !textSymbol
 
             if (textSymbol) {
 
                 //Пропускаем если это символ из маски(+, 7, и тд)
                 if (isMaskPatternSymbol) {
-                    textSymbolIndex++
+                    maskSymbolIndex++
+                    
+                    if (textSymbol === maskSymbol) {
+                        textSymbolIndex++
+                    } 
+                    
                     continue
-                }
-
-                if (isMaskPatternRegExp) {
+                } else if (isMaskPatternRegExp) {
                     const maskRegExp = regExpsArray[0],
                           regExp = maskRegExp ? new RegExp(maskRegExp) : null
 
                     if (regExp && regExp.test(textSymbol)) {
                         maskSymbolsArrayToOutPut[maskSymbolIndex] = textSymbol
                         regExpsArray.pop()
+                        maskSymbolIndex++
+                        textSymbolIndex++
                     } else {
-                        maskSymbolsArrayToOutPut = maskSymbolsArrayToOutPut.slice(0, endSliceIndex)
-                        break
+                        textSymbolIndex++
                     }
 
-                    textSymbolIndex++
                 }
 
             } else if (wasAllTextSymbolsUsed) {
@@ -255,12 +256,14 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
                 if (remainderMaskRegExpCount > 0) {
                     maskSymbolsArrayToOutPut = maskSymbolsArrayToOutPut.slice(0, maskSymbolIndex)
                     break
+                } else {
+                    break
                 }
 
+            } else {
+                break
             }
 
-
-            lastMaskRegExpSymbolIndex = isMaskPatternRegExp ? maskSymbolIndex : lastMaskRegExpSymbolIndex
         }
 
         const maskedValue = maskSymbolsArrayToOutPut.join(''),

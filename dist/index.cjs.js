@@ -302,38 +302,38 @@ var mask = function mask(textForMaskInput, maskSettings) {
     };
   } else {
     var _textSymbolIndex = 0,
-        maskSymbolsArrayToOutPut = _toConsumableArray__default['default'](maskSymbolsArray),
-        lastMaskRegExpSymbolIndex = 0;
+        maskSymbolsArrayToOutPut = _toConsumableArray__default['default'](maskSymbolsArray);
 
-    for (var _maskSymbolIndex = 0; _maskSymbolIndex < maskSymbolsCount; _maskSymbolIndex++) {
+    for (var _maskSymbolIndex = 0; _maskSymbolIndex < maskSymbolsCount;) {
       var _maskSymbol = maskSymbolsArray[_maskSymbolIndex],
           _textSymbol = textForMaskInput[_textSymbolIndex],
           remainderMaskRegExpCount = regExpsArray.length,
-          isMaskPatternSymbol = _textSymbol === _maskSymbol,
+          isMaskPatternSymbol = _maskSymbol !== regExpReplaceSymbol,
           isMaskPatternRegExp = _maskSymbol === regExpReplaceSymbol,
-          wasAllTextSymbolsUsed = !_textSymbol,
-          endSliceIndex = lastMaskRegExpSymbolIndex > 0 ? lastMaskRegExpSymbolIndex + 1 : 0;
+          wasAllTextSymbolsUsed = !_textSymbol;
 
       if (_textSymbol) {
         //Пропускаем если это символ из маски(+, 7, и тд)
         if (isMaskPatternSymbol) {
-          _textSymbolIndex++;
-          continue;
-        }
+          _maskSymbolIndex++;
 
-        if (isMaskPatternRegExp) {
+          if (_textSymbol === _maskSymbol) {
+            _textSymbolIndex++;
+          }
+
+          continue;
+        } else if (isMaskPatternRegExp) {
           var _maskRegExp = regExpsArray[0],
               _regExp = _maskRegExp ? new RegExp(_maskRegExp) : null;
 
           if (_regExp && _regExp.test(_textSymbol)) {
             maskSymbolsArrayToOutPut[_maskSymbolIndex] = _textSymbol;
             regExpsArray.pop();
+            _maskSymbolIndex++;
+            _textSymbolIndex++;
           } else {
-            maskSymbolsArrayToOutPut = maskSymbolsArrayToOutPut.slice(0, endSliceIndex);
-            break;
+            _textSymbolIndex++;
           }
-
-          _textSymbolIndex++;
         }
       } else if (wasAllTextSymbolsUsed) {
         /**
@@ -342,10 +342,12 @@ var mask = function mask(textForMaskInput, maskSettings) {
         if (remainderMaskRegExpCount > 0) {
           maskSymbolsArrayToOutPut = maskSymbolsArrayToOutPut.slice(0, _maskSymbolIndex);
           break;
+        } else {
+          break;
         }
+      } else {
+        break;
       }
-
-      lastMaskRegExpSymbolIndex = isMaskPatternRegExp ? _maskSymbolIndex : lastMaskRegExpSymbolIndex;
     }
 
     var _maskedValue = maskSymbolsArrayToOutPut.join(''),
