@@ -56,7 +56,9 @@ Recommended for production for avoiding unexpected breakage from newer versions:
 <script src="https://cdn.jsdelivr.net/npm/js-mask@0.0.0/dist/lib/js-mask.js"></script>
 ```
 
-### Example
+### Demo
+
+<a href="https://codesandbox.io/s/pedantic-drake-07hym?file=/src/App.js" target="_blank">see demo</a>
 
 ## Methods
 
