@@ -3,7 +3,6 @@ type maskSettingsProps = {
     placeholder?: string;
     inputCaretPositionIndex?: number;
     prevValue?: string;
-    handleEventInput?: boolean;
 };
 type maskResult = {
     maskedValue: string;
@@ -11,8 +10,8 @@ type maskResult = {
     unmaskedPrevValue?: string;
     newCaretPosition?: number;
 };
-type Mask = (textForMask: string, maskSettings?: maskSettingsProps) => maskResult;
-type Unmask = (textForMask: string, maskSettings?: maskSettingsProps) => string;
+type Mask = (textForMask: string, maskSettings: maskSettingsProps) => maskResult;
+type Unmask = (textForMask: string, maskSettings: maskSettingsProps) => string;
 declare const unmask: Unmask;
 /**
  * @description

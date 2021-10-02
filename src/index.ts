@@ -7,7 +7,6 @@ import {getFirstFilledRegExpIndexAfterCaret} from '@helpers/get-first-filled-reg
 import {clearRedundantPlaceholderAfterInputText} from '@helpers/clear-redundant-placeholder-after-input-text'
 
 import {getNewCaretPosition} from '@helpers/get-new-caret-position'
-import countValueInArray from "count-value-in-array";
 
 const unmask:Unmask = (textForMask, maskSettings) => {
     const {maskPattern = '', placeholder = '_'} = maskSettings || {},
@@ -219,7 +218,7 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
         for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; maskSymbolIndex++) {
             const maskSymbol = maskSymbolsArray[maskSymbolIndex],
                   textSymbol = textForMaskInput[textSymbolIndex],
-                  remainderMaskRegExpCount = countValueInArray(maskSymbolsArrayToOutPut, regExpReplaceSymbol),
+                  remainderMaskRegExpCount = regExpsArray.length,
                   isMaskPatternSymbol = textSymbol === maskSymbol,
                   isMaskPatternRegExp = maskSymbol === regExpReplaceSymbol,
                   wasAllTextSymbolsUsed = !textSymbol,
@@ -234,11 +233,12 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
                 }
 
                 if (isMaskPatternRegExp) {
-                    const maskRegExp = regExpsArray.pop(),
+                    const maskRegExp = regExpsArray[0],
                           regExp = maskRegExp ? new RegExp(maskRegExp) : null
 
                     if (regExp && regExp.test(textSymbol)) {
                         maskSymbolsArrayToOutPut[maskSymbolIndex] = textSymbol
+                        regExpsArray.pop()
                     } else {
                         maskSymbolsArrayToOutPut = maskSymbolsArrayToOutPut.slice(0, endSliceIndex)
                         break
@@ -261,7 +261,6 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
 
 
             lastMaskRegExpSymbolIndex = isMaskPatternRegExp ? maskSymbolIndex : lastMaskRegExpSymbolIndex
-
         }
 
         const maskedValue = maskSymbolsArrayToOutPut.join(''),
@@ -271,7 +270,6 @@ const mask:Mask = (textForMaskInput, maskSettings) => {
     }
 
 }
-
 
 
 export {mask, unmask}

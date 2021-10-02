@@ -1,13 +1,12 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@babel/runtime/helpers/esm/toConsumableArray'), require('@babel/runtime/helpers/typeof')) :
-    typeof define === 'function' && define.amd ? define(['exports', '@babel/runtime/helpers/esm/toConsumableArray', '@babel/runtime/helpers/typeof'], factory) :
-    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.myLib = {}, global._toConsumableArray, global.r));
-}(this, (function (exports, _toConsumableArray, r) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@babel/runtime/helpers/esm/toConsumableArray')) :
+    typeof define === 'function' && define.amd ? define(['exports', '@babel/runtime/helpers/esm/toConsumableArray'], factory) :
+    (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.myLib = {}, global._toConsumableArray));
+}(this, (function (exports, _toConsumableArray) { 'use strict';
 
     function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
     var _toConsumableArray__default = /*#__PURE__*/_interopDefaultLegacy(_toConsumableArray);
-    var r__default = /*#__PURE__*/_interopDefaultLegacy(r);
 
     /**
      * Replace all RegExp symbols in mask array to placeholder
@@ -113,10 +112,6 @@
       if (wasInputSymbolWithOutMask) newCaretPosition = maskPatternString.indexOf(placeholder) + 1;
       return newCaretPosition;
     };
-
-    function e(r,e){var n="undefined"!=typeof Symbol&&r[Symbol.iterator]||r["@@iterator"];if(!n){if(Array.isArray(r)||(n=function(r,e){if(!r)return;if("string"==typeof r)return t(r,e);var n=Object.prototype.toString.call(r).slice(8,-1);"Object"===n&&r.constructor&&(n=r.constructor.name);if("Map"===n||"Set"===n)return Array.from(r);if("Arguments"===n||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))return t(r,e)}(r))||e&&r&&"number"==typeof r.length){n&&(r=n);var o=0,a=function(){};return {s:a,n:function(){return o>=r.length?{done:!0}:{done:!1,value:r[o++]}},e:function(r){throw r},f:a}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var i,f=!0,c=!1;return {s:function(){n=n.call(r);},n:function(){var r=n.next();return f=r.done,r},e:function(r){c=!0,i=r;},f:function(){try{f||null==n.return||n.return();}finally{if(c)throw i}}}}function t(r,e){(null==e||e>r.length)&&(e=r.length);for(var t=0,n=new Array(e);t<e;t++)n[t]=r[t];return n}var n=function t(n,o){var a=!0;if(n&&o){if(!("object"===r__default['default'](n)&&"object"===r__default['default'](o)))return !1;var i=Object.keys(n),f=Object.keys(o);if(i.length===f.length){var c,u=e(i);try{for(u.s();!(c=u.n()).done;){var l=c.value,b=n[l];if(!Object.hasOwnProperty.call(o,l)){a=!1;break}var s=o[l];if("object"===r__default['default'](b)&&"object"===r__default['default'](s)){if(!t(b,s)){a=!1;break}}else if(s!=b){a=!1;break}}}catch(r){u.e(r);}finally{u.f();}}else a=!1;}else a=!1;return a},o=function(e){var t=!0;if(!Array.isArray(e))throw new Error("compared object must be in array");for(var o=0;;o++){var a=e[o],i=e[o+1];if(!a||!i){if("object"!==r__default['default'](a))throw new Error("type of compared items must be object");break}if(!("object"===r__default['default'](a)&&"object"===r__default['default'](i)))throw new Error("type of compared items must be object");if(!1===(t=n(a,i)))break}return t};
-
-    function countValueInArray(e,o$1){if(Array.isArray(e))return "object"===r__default['default'](o$1)?e.filter((function(e){return "object"===r__default['default'](e)&&o([e,o$1])})).length:e.filter((function(r){return r==o$1})).length;throw new Error("first parameter is not Array")}
 
     var unmask = function unmask(textForMask, maskSettings) {
       var _ref = maskSettings || {},
@@ -313,7 +308,7 @@
         for (var _maskSymbolIndex = 0; _maskSymbolIndex < maskSymbolsCount; _maskSymbolIndex++) {
           var _maskSymbol = maskSymbolsArray[_maskSymbolIndex],
               _textSymbol = textForMaskInput[_textSymbolIndex],
-              remainderMaskRegExpCount = countValueInArray(maskSymbolsArrayToOutPut, regExpReplaceSymbol),
+              remainderMaskRegExpCount = regExpsArray.length,
               isMaskPatternSymbol = _textSymbol === _maskSymbol,
               isMaskPatternRegExp = _maskSymbol === regExpReplaceSymbol,
               wasAllTextSymbolsUsed = !_textSymbol,
@@ -327,11 +322,12 @@
             }
 
             if (isMaskPatternRegExp) {
-              var _maskRegExp = regExpsArray.pop(),
+              var _maskRegExp = regExpsArray[0],
                   _regExp = _maskRegExp ? new RegExp(_maskRegExp) : null;
 
               if (_regExp && _regExp.test(_textSymbol)) {
                 maskSymbolsArrayToOutPut[_maskSymbolIndex] = _textSymbol;
+                regExpsArray.pop();
               } else {
                 maskSymbolsArrayToOutPut = maskSymbolsArrayToOutPut.slice(0, endSliceIndex);
                 break;
