@@ -15,7 +15,7 @@ const isDev = process.env.NODE_ENV === 'dev',
       inputFile = 'src/index.ts',
       outputDir = 'dist',
       extensions = ['.js', '.ts'],
-      libName = 'myLib'
+      libName = 'jsMask'
 
 
 const plugins = [

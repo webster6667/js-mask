@@ -11,7 +11,17 @@ type maskResult = {
     newCaretPosition?: number;
 };
 type Mask = (textForMask: string, maskSettings: maskSettingsProps) => maskResult;
-type Unmask = (textForMask: string, maskSettings: maskSettingsProps) => string;
+type Unmask = (maskedText: string, maskSettings: maskSettingsProps) => string;
+/**
+ * @description
+ * will clean text from mask, and return clear value
+ *
+ * @param {string} maskedText - text for mask
+ * @param {maskSettingsProps} maskSettings - setting for covering mask
+ *
+ * @returns {string}
+ *
+ */
 declare const unmask: Unmask;
 /**
  * @description
@@ -22,8 +32,6 @@ declare const unmask: Unmask;
  *
  * @returns {string}
  *
- * @example
- * function() // => true
  */
 declare const mask: Mask;
 export { mask, unmask };

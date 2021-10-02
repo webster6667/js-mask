@@ -2,12 +2,12 @@
     <img src="./illustration.svg" alt="illustration" width="100"/>
 </p>
 
-# MYLIBNAME
+# js-mask
 
-> description
+> mask on clear js, which you can use on frontend and backend, on string or dom element
 
-[![npm version](https://badge.fury.io/js/MYLIBNAME.svg)](https://www.npmjs.com/package/MYLIBNAME)
-[![](https://data.jsdelivr.com/v1/package/npm/MYLIBNAME/badge)](https://www.jsdelivr.com/package/npm/MYLIBNAME)
+[![npm version](https://badge.fury.io/js/js-mask.svg)](https://www.npmjs.com/package/js-mask)
+[![](https://data.jsdelivr.com/v1/package/npm/js-mask/badge)](https://www.jsdelivr.com/package/npm/js-mask)
 
 
 ## Table of Contents
@@ -16,6 +16,7 @@
   - [Install](#install)
   - [Initialization](#initialization)
 - [Methods](#methods)
+  - [unmask](#unmask)
   - [mask](#mask)
 
 ## Quick start
@@ -29,16 +30,16 @@ We support all platforms.
 For module bundlers such as Webpack or Browserify.
 
 ```shell
-npm i MYLIBNAME
+npm i js-mask
 ```
 
 #### Include with &lt;script&gt;
 
-1. <a href="https://cdn.jsdelivr.net/npm/MYLIBNAME/dist/lib/MYLIBNAME.js" target="_blank">Download lib</a>
+1. <a href="https://cdn.jsdelivr.net/npm/js-mask/dist/lib/js-mask.js" target="_blank">Download lib</a>
 2. Add script to html
 
 ```html
-<script src="MYLIBNAME.js"></script>
+<script src="js-mask.js"></script>
 ```
 
 ##### CDN
@@ -46,74 +47,26 @@ npm i MYLIBNAME
 Recommended for learning purposes, you can use the latest version:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/MYLIBNAME/dist/lib/MYLIBNAME.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-mask/dist/lib/js-mask.js"></script>
 ```
 
 Recommended for production for avoiding unexpected breakage from newer versions:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/MYLIBNAME@0.0.0/dist/lib/MYLIBNAME.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-mask@0.0.0/dist/lib/js-mask.js"></script>
 ```
 
-### Initialization
-
-#### ES6
-
-MYLIBNAME as an ES6 module.
-
-```js
-import { myFunc } from 'MYLIBNAME';
-
-myFunc()
-
-```
-
-#### Node
-
-MYLIBNAME as a Node.js module
-
-```js
-const { myFunc } = require('MYLIBNAME');
-
-myFunc()
-```
-
-#### Browser
-
-Exports a global variable called `GLOBALMYLIBNAME`. Use it like this
-
-Connect to html file ```<script src="https://cdn.jsdelivr.net/npm/MYLIBNAME/dist/lib/MYLIBNAME.js" ></script>```
-
-```html
-<script>
-    GLOBALMYLIBNAME.myFunc();
-    or
-    GLOBALMYLIBNAME();
-</script>
-```
-
-#### AMD
-
-MYLIBNAME as an AMD module. Use with Require.js, System.js, and so on.
-
-1. <a href="https://cdn.jsdelivr.net/npm/MYLIBNAME/dist/lib/MYLIBNAME.js" target="_blank">Download lib</a>
-2. Connect to your module loader
-
-```js
-requirejs(['MYLIBNAME'], function(GLOBALMYLIBNAME) {
-    GLOBALMYLIBNAME.myFunc()
-});
-```
+### Example
 
 ## Methods
 
-### mask
+### unmask
 
-covering value to mask, relative settings
+will clean text from mask, and return clear value
 
 
 #### Params
-- `textForMask`
+- `maskedText`
   - Type: `string`
   - Description: text for mask
 - `maskSettings`
@@ -123,10 +76,24 @@ covering value to mask, relative settings
 #### Returns
 - `string`
 
-#### Example
-```JS
-function() // => true
-```
+
+
+### mask
+
+covering value to mask, relative settings
+
+
+#### Params
+- `textForMaskInput`
+  - Type: `string`
+  - Description: text for mask
+- `maskSettings`
+  - Type: `maskSettingsProps`
+  - Description: setting for covering mask
+
+#### Returns
+- `string`
+
 
 
 

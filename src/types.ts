@@ -14,6 +14,6 @@ type maskResult = {
 
 export type Mask = (textForMask: string, maskSettings: maskSettingsProps) => maskResult
 
-export type Unmask = (textForMask: string, maskSettings: maskSettingsProps) => string
+export type Unmask = (maskedText: string, maskSettings: maskSettingsProps) => string
 
 

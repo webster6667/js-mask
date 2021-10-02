@@ -8,7 +8,17 @@ import {clearRedundantPlaceholderAfterInputText} from '@helpers/clear-redundant-
 
 import {getNewCaretPosition} from '@helpers/get-new-caret-position'
 
-const unmask:Unmask = (textForMask, maskSettings) => {
+/**
+ * @description
+ * will clean text from mask, and return clear value
+ *
+ * @param {string} maskedText - text for mask
+ * @param {maskSettingsProps} maskSettings - setting for covering mask
+ *
+ * @returns {string}
+ *
+ */
+const unmask:Unmask = (maskedText, maskSettings) => {
     const {maskPattern = '', placeholder = '_'} = maskSettings || {},
           regExpReplaceSymbol = '[',
           {maskSymbolsArray} = getMaskSymbolsArray(maskPattern, regExpReplaceSymbol),
@@ -18,7 +28,7 @@ const unmask:Unmask = (textForMask, maskSettings) => {
 
     for(let maskSymbolIndex = 0; maskSymbolIndex < maskSymbolsCount; maskSymbolIndex++) {
         const maskSymbol = maskSymbolsArray[maskSymbolIndex],
-              textSymbol = textForMask[maskSymbolIndex],
+              textSymbol = maskedText[maskSymbolIndex],
               isMaskPatternSymbol = textSymbol === maskSymbol,
               isMaskPatternRegExp = maskSymbol === regExpReplaceSymbol
 
@@ -53,8 +63,6 @@ const unmask:Unmask = (textForMask, maskSettings) => {
  *
  * @returns {string}
  *
- * @example
- * function() // => true
  */
 const mask:Mask = (textForMaskInput, maskSettings) => {
     const {
